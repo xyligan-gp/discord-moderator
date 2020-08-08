@@ -43,7 +43,7 @@ bot.on('ready', () => {
 * **options.updateCountdownEvery**: Количество секунд(в миллисекундах), для обновления случаев
 ```
 
-### Mute / Tempmute / Unmute
+### Mute | Tempmute | Unmute
 
 ```js
 bot.on('message', async message => {
@@ -114,3 +114,8 @@ bot.on('message', async message => {
 * **options.author**: Автор мута
 * **options.channel**: Канал выдачи мута
 * **options.mutedRoleID**: ID мут-роли для выдачи
+
+# Необходимая информация | Контакты
+
+* **Discord создателя модуля**: ♡ xүℓ[ι]gαη4εg ♡#9457
+* **Discord-сервер поддержки модуля** [Клик](https://discord.gg/2uuvDCT)
