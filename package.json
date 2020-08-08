@@ -1,0 +1,56 @@
+{
+  "_from": "discord-moderator",
+  "_id": "discord-moderator@1.0.1",
+  "_inBundle": false,
+  "_integrity": "sha512-uLVIBzVMer8lAqEz1DKyGmp10hTYVmce1FaGJX1H09T5yWmqUjV7cwdUtAraD5RWD+FtlTNLBbF7Ot2cfc23Ng==",
+  "_location": "/discord-moderator",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "discord-moderator",
+    "name": "discord-moderator",
+    "escapedName": "discord-moderator",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/discord-moderator/-/discord-moderator-1.0.0.tgz",
+  "_shasum": "29b8d5026663711dd13637dd250ebc02a40e6cbe",
+  "_spec": "discord-moderator",
+  "_where": "/root/",
+  "author": {
+    "name": "♡ xүℓ[ι]gαη4εg ♡"
+  },
+  "bugs": {
+    "url": "https://github.com/weblol200/discord-moderator/blob/master/README.md"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "merge-options": "^2.0.0"
+  },
+  "deprecated": false,
+  "description": "Remake of the good old module.",
+  "homepage": "https://github.com/weblol200/discord-moderator/blob/master/README.md",
+  "keywords": [
+    "discord",
+    "discord.js",
+    "tools",
+    "sanction",
+    "sanctions",
+    "discord-moderator",
+    "discord moderator"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "name": "discord-moderator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/weblol200/discord-moderator/blob/master/README.md"
+  },
+  "version": "1.0.1"
+}
