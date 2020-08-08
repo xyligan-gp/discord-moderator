@@ -73,7 +73,6 @@ bot.on('message', async message => {
 * **options.author**: Автор мута
 * **options.channel**: Канал выдачи мута
 * **options.mutedRoleID**: ID мут-роли для выдачи
-
 ```js
     if(cmd === `${prefix}tempmute`) {
 		let user = message.mentions.users.last();
@@ -93,7 +92,11 @@ bot.on('message', async message => {
         }).catch(err => console.log(err))
     }
 ```
-
+* **options.time**: Время выдачи мута
+* **options.reason**: Причина мута
+* **options.author**: Автор мута
+* **options.channel**: Канал выдачи мута
+* **options.mutedRoleID**: ID мут-роли для выдачи
 ```js
     if(cmd === `${prefix}unmute`) {
 		let user = message.mentions.users.last();
@@ -108,3 +111,6 @@ bot.on('message', async message => {
         }).catch(err => console.log(err))
 	}
 ```
+* **options.author**: Автор мута
+* **options.channel**: Канал выдачи мута
+* **options.mutedRoleID**: ID мут-роли для выдачи
