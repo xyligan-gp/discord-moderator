@@ -138,7 +138,7 @@ bot.on('message', async message => {
 * **options.channel**: Канал выдачи мута
 * **options.mutedRoleID**: ID мут-роли для выдачи
 
-### Mute Detect(фикс обхода мута)
+### Mute Detect(Фикс обхода мута)
 ```js
 bot.on('guildMemberAdd', member => {
 	moderator.guildMemberAdd((member), {
