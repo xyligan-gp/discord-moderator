@@ -29,7 +29,12 @@ const moderator = new Moderator(bot, {
     updateCountdownEvery: 5000,
 	muteTable: 'muted',
 	muteMessageType: 'message',
-    muteEmbedColor: 'RANDOM'
+    muteEmbedColor: 'f80000',
+	warnsTable: 'userWARNS',
+    warnKickMessage: '{user} кикнут! Причина: **{reason}**',
+    warnBanMessage: `{user} забанен! Причина: **{reason}**`,
+    warnsMessageType: 'embed',
+    warnsEmbedColor: 'RANDOM'
 });
 
 //Теперь у нас есть свойство модератора для доступа по всей структуре бота!
