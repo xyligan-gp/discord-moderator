@@ -1,6 +1,6 @@
 {
   "_from": "discord-moderator",
-  "_id": "discord-moderator@1.0.1",
+  "_id": "discord-moderator@1.0.3",
   "_inBundle": false,
   "_integrity": "sha512-uLVIBzVMer8lAqEz1DKyGmp10hTYVmce1FaGJX1H09T5yWmqUjV7cwdUtAraD5RWD+FtlTNLBbF7Ot2cfc23Ng==",
   "_location": "/discord-moderator",
@@ -19,7 +19,7 @@
     "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/discord-moderator/-/discord-moderator-1.0.0.tgz",
+  "_resolved": "https://registry.npmjs.org/discord-moderator/-/discord-moderator-1.0.3.tgz",
   "_shasum": "29b8d5026663711dd13637dd250ebc02a40e6cbe",
   "_spec": "discord-moderator",
   "_where": "/root/",
@@ -31,10 +31,12 @@
   },
   "bundleDependencies": false,
   "dependencies": {
-    "merge-options": "^2.0.0"
+    "merge-options": "^2.0.0",
+	"quick.db": "^7.1.1",
+	"discord.js": "^12.2.0"
   },
   "deprecated": false,
-  "description": "Remake of the good old module.",
+  "description": "Один из лучших и активно развивающихся модулей для создания модерации в Discord!",
   "homepage": "https://github.com/weblol200/discord-moderator/blob/master/README.md",
   "keywords": [
     "discord",
@@ -52,5 +54,5 @@
     "type": "git",
     "url": "https://github.com/weblol200/discord-moderator/blob/master/README.md"
   },
-  "version": "1.0.1"
+  "version": "1.0.3"
 }
