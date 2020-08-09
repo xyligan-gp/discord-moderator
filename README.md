@@ -213,28 +213,6 @@ bot.on('message', async message => {
     let args = messageArray.slice(1);
     let args2 = args.join(" ").slice(22);
 
-    if(cmd === `${prefix}unwarn`) {
-		let user = message.mentions.users.last();
-		if(!user) return message.channel.send(`${message.author}, укажите пользователя для выдачи предупреждения!`);
-		moderator.unwarn(message.guild.members.cache.get(user.id), {
-			channel: message.channel,
-			author: message.member
-		}).then((muteData) => {
-			//your code
-		});
-	}
-});
-```
-* **options.channel**: Канал выдачи предупреждения
-* **options.author**: Автор предупреждения
-```js
-bot.on('message', async message => {
-    const prefix = 'your prefix';
-	let messageArray = message.content.split(' ');
-	let cmd = messageArray[0];
-    let args = messageArray.slice(1);
-    let args2 = args.join(" ").slice(22);
-
     if(cmd === `${prefix}warns`) {
 		let user = message.mentions.users.last();
 		if(!user) return message.channel.send(`${message.author}, укажите пользователя для выдачи предупреждения!`);
