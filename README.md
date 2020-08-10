@@ -8,7 +8,10 @@
 ## Установка
 
 ```js
+NPM:
 npm install discord-moderator
+Yarn:
+yarn add discord-moderator
 ```
 
 ## Примеры
@@ -16,9 +19,8 @@ npm install discord-moderator
 ### Запуск модуля
 
 ```js
-const Discord = require('discord.js'); //npm install discord.js
-const ms = require('ms'); //npm install ms
-const bot = new Discord.Client();
+const { Client } = require('discord.js'); //npm install discord.js
+const bot = new Client();
 
 //Для запуска модуля нужен конструктор Moderator
 const { Moderator } = require('discord-moderator');
@@ -27,16 +29,15 @@ const { Moderator } = require('discord-moderator');
 const moderator = new Moderator(bot, {
     storage: "./moderator.json",
     updateCountdownEvery: 5000,
-	muteTable: 'muted',
-	muteMessageType: 'message',
+    muteTable: 'muted',
+    muteMessageType: 'message',
     muteEmbedColor: 'f80000',
-	warnsTable: 'userWARNS',
+    warnsTable: 'userWARNS',
     warnKickMessage: '{user} кикнут! Причина: **{reason}**',
     warnBanMessage: `{user} забанен! Причина: **{reason}**`,
     warnsMessageType: 'embed',
     warnsEmbedColor: 'RANDOM'
 });
-
 //Теперь у нас есть свойство модератора для доступа по всей структуре бота!
 bot.moderator = moderator;
 
@@ -53,58 +54,64 @@ bot.login('TOKEN');
 * **options.storage**: Путь к JSON-файлу, в который будут записываться все случаи.
 * **options.updateCountdownEvery**: Количество секунд(в миллисекундах), для обновления случаев
 * **options.muteTable**: Таблица в базе для записи мутов
-* **muteMessageType**: Тип сообщения, которое отправляется при размуте пользователя: message - обычное сообщение | embed - Discord Embed сообщение
-* **muteEmbedColor**: Цвет для Discord Embed сообщения
+* **options.muteMessageType**: Тип сообщения, которое отправляется при размуте пользователя: message - обычное сообщение | embed - Discord Embed сообщение
+* **options.muteEmbedColor**: Цвет для Discord Embed сообщения
+* **options.warnsTable**: Таблица в базе для записи предупреждений/варнов
+* **options.warnKickMessage**: Сообщение, которое бот будет отправлять при кике пользователя(за достижение лимита предупреждений)
+* **options.warnBanMessage**: Сообщение, которое бот будет отправлять при бане пользователя(за достижение лимита предупреждений)
+* **options.warnsMessageType**: Тип сообщение, которое будет отправляться при кике и бане пользователя: message - обычное сообщение | embed - Discord Embed сообщение
+* **options.warnsEmbedColor**: Цвет для Discord Embed сообщения
 
-### Mute | Tempmute | Unmute
-
+### Команды Mute | Tempmute | Unmute
+#### mute:
 ```js
 bot.on('message', async message => {
     const prefix = 'your prefix';
-	let messageArray = message.content.split(' ');
-	let cmd = messageArray[0];
+    let messageArray = message.content.split(' ');
+    let cmd = messageArray[0];
     let args = messageArray.slice(1);
     let args2 = args.join(" ").slice(22);
     
     if(cmd === `${prefix}mute`) {
-		let reason = args2;
-		let user = message.mentions.users.last();
-		if(!user) return message.channel.send(`${message.author}, укажите пользователя для мута!`);
+	let reason = args2;
+	let user = message.mentions.users.last();
+	if(!user) return message.channel.send(`${message.author}, укажите пользователя для мута!`);
         if(!reason) return message.channel.send(`${message.author}, укажите время мута!`);
-		moderator.mute(message.guild.members.cache.get(user.id), {
+	moderator.mute(message.guild.members.cache.get(user.id), {
             reason: reason,
-			author: message.member,
+	    author: message.member,
             channel: message.channel,
             mutedRoleID: 'ID мут-роли'
         }).then((muteData) => {
-			if(message.guild.member(user).roles.cache.get('ID мут-роли')) return message.channel.send(`${user} уже заглушён!`);
-            return message.channel.send(`${user} заглушён! Причина: **${reason}**`);
+		if(message.guild.member(user).roles.cache.get('ID мут-роли')) return message.channel.send(`${user} уже заглушён!`);
+           	return message.channel.send(`${user} заглушён! Причина: **${reason}**`);
         }).catch(err => console.log(err))
-	}
+    }
 });
 ```
 * **options.reason**: Причина мута
 * **options.author**: Автор мута
 * **options.channel**: Канал выдачи мута
 * **options.mutedRoleID**: ID мут-роли для выдачи
+#### tempmute:
 ```js
 bot.on('message', async message => {
     const prefix = 'your prefix';
-	let messageArray = message.content.split(' ');
-	let cmd = messageArray[0];
+    let messageArray = message.content.split(' ');
+    let cmd = messageArray[0];
     let args = messageArray.slice(1);
     let args2 = args.join(" ").slice(22);
     
     if(cmd === `${prefix}tempmute`) {
-		let user = message.mentions.users.last();
-		let time = args[1];
-		let reason = args.slice(2);
-		if(!user) return message.channel.send(`${message.author}, укажите пользователя для мута!`);
+	let user = message.mentions.users.last();
+	let time = args[1];
+	let reason = args.slice(2);
+	if(!user) return message.channel.send(`${message.author}, укажите пользователя для мута!`);
         if(!time) return message.channel.send(`${message.author}, укажите время мута!`);
-		if(reason == undefined) return message.channel.send(`${message.author}, укажите причину мута!`);
-		moderator.mute(message.guild.members.cache.get(user.id), {
+	if(reason == undefined) return message.channel.send(`${message.author}, укажите причину мута!`);
+	moderator.mute(message.guild.members.cache.get(user.id), {
             time: ms(time),
-			reason: reason.join(' '),
+	    reason: reason.join(' '),
             author: message.member,
             channel: message.channel,
             mutedRoleID: 'ID мут-роли'
@@ -120,33 +127,34 @@ bot.on('message', async message => {
 * **options.author**: Автор мута
 * **options.channel**: Канал выдачи мута
 * **options.mutedRoleID**: ID мут-роли для выдачи
+#### unmute:
 ```js
 bot.on('message', async message => {
     const prefix = 'your prefix';
-	let messageArray = message.content.split(' ');
-	let cmd = messageArray[0];
+    let messageArray = message.content.split(' ');
+    let cmd = messageArray[0];
     let args = messageArray.slice(1);
     let args2 = args.join(" ").slice(22);
   
     if(cmd === `${prefix}unmute`) {
-		let user = message.mentions.users.last();
-		if(!user) return message.channel.send(`${message.author}, укажите пользователя для размута!`);
-		moderator.unmute(message.guild.members.cache.get(user.id), {
+	let user = message.mentions.users.last();
+	if(!user) return message.channel.send(`${message.author}, укажите пользователя для размута!`);
+	moderator.unmute(message.guild.members.cache.get(user.id), {
             author: message.member,
             channel: message.channel,
             mutedRoleID: '698639775846105208'
         }).then((muteData) => {
-			if(!message.guild.member(user).roles.cache.get('698639775846105208')) return message.channel.send(`${user} уже разглушён!`);
-            return message.channel.send(`${user} разглушён!`);
+		if(!message.guild.member(user).roles.cache.get('698639775846105208')) return message.channel.send(`${user} уже разглушён!`);
+		return message.channel.send(`${user} разглушён!`);
         }).catch(err => console.log(err))
-	}
+    }
 });
 ```
 * **options.author**: Автор мута
 * **options.channel**: Канал выдачи мута
 * **options.mutedRoleID**: ID мут-роли для выдачи
 
-### Mute Detect(Фикс обхода мута)
+### Mute Detect(Фикс обхода мута):
 ```js
 bot.on('guildMemberAdd', member => {
 	moderator.guildMemberAdd((member), {
@@ -156,73 +164,75 @@ bot.on('guildMemberAdd', member => {
 ```
 * **options.mutedRoleID**: ID мут-роли для выдачи
 
-### Warn | Unwarn | Warns
-
+### Команды Warn | Unwarn | Warns
+#### warn:
 ```js
 bot.on('message', async message => {
     const prefix = 'your prefix';
-	let messageArray = message.content.split(' ');
-	let cmd = messageArray[0];
+    let messageArray = message.content.split(' ');
+    let cmd = messageArray[0];
     let args = messageArray.slice(1);
     let args2 = args.join(" ").slice(22);
 
     if(cmd === `${prefix}warn`) {
-		let reason = args2;
-		let user = message.mentions.users.last();
-		if(!user) return message.channel.send(`${message.author}, укажите пользователя для выдачи варна!`);
-		moderator.warn(message.guild.members.cache.get(user.id), {
-			channel: message.channel,
-			author: message.member,
-			reason: reason
-		}).then((muteData) => {
-			//your code
-		});
-	}
+	let reason = args2;
+	let user = message.mentions.users.last();
+	if(!user) return message.channel.send(`${message.author}, укажите пользователя для выдачи варна!`);
+	moderator.warn(message.guild.members.cache.get(user.id), {
+		channel: message.channel,
+		author: message.member,
+		reason: reason
+	}).then((muteData) => {
+		//your code
+	});
+    }
 });
 ```
 * **options.channel**: Канал выдачи предупреждения
 * **options.author**: Автор предупреждения
 * **options.reason**: Причина выдачи предупреждение
+#### unwarn:
 ```js
 bot.on('message', async message => {
     const prefix = 'your prefix';
-	let messageArray = message.content.split(' ');
-	let cmd = messageArray[0];
+    let messageArray = message.content.split(' ');
+    let cmd = messageArray[0];
     let args = messageArray.slice(1);
     let args2 = args.join(" ").slice(22);
 
     if(cmd === `${prefix}unwarn`) {
-		let user = message.mentions.users.last();
-		if(!user) return message.channel.send(`${message.author}, укажите пользователя для выдачи предупреждения!`);
-		moderator.unwarn(message.guild.members.cache.get(user.id), {
-			channel: message.channel,
-			author: message.member
-		}).then((muteData) => {
-			//your code
-		});
-	}
+	let user = message.mentions.users.last();
+	if(!user) return message.channel.send(`${message.author}, укажите пользователя для выдачи предупреждения!`);
+	moderator.unwarn(message.guild.members.cache.get(user.id), {
+		channel: message.channel,
+		author: message.member
+	}).then((muteData) => {
+		//your code
+	});
+    }
 });
 ```
 * **options.channel**: Канал выдачи предупреждения
 * **options.author**: Автор предупреждения
+#### warns:
 ```js
 bot.on('message', async message => {
     const prefix = 'your prefix';
-	let messageArray = message.content.split(' ');
-	let cmd = messageArray[0];
+    let messageArray = message.content.split(' ');
+    let cmd = messageArray[0];
     let args = messageArray.slice(1);
     let args2 = args.join(" ").slice(22);
 
     if(cmd === `${prefix}warns`) {
-		let user = message.mentions.users.last();
-		if(!user) return message.channel.send(`${message.author}, укажите пользователя для выдачи предупреждения!`);
-		moderator.warns(message.guild.members.cache.get(user.id), {
-			channel: message.channel,
-			author: message.member
-		}).then((muteData) => {
-			//your code
-		});
-	}
+	let user = message.mentions.users.last();
+	if(!user) return message.channel.send(`${message.author}, укажите пользователя для выдачи предупреждения!`);
+	moderator.warns(message.guild.members.cache.get(user.id), {
+		channel: message.channel,
+		author: message.member
+	}).then((muteData) => {
+		//your code
+	});
+    }
 });
 ```
 * **options.channel**: Канал выдачи предупреждения
@@ -234,6 +244,7 @@ bot.on('message', async message => {
 * **1.0.1**: Фикс некоторых багов и ошибок.
 * **1.0.2**: Полностью обновлена система мута, переписана структура модуля.
 * **1.0.3**: Добавлена система предупреждений. Фикс багов и ошибок.
+* **1.0.4 - 1.0.6**: Исправление ошибок и недоработок.
 
 # Необходимая информация | Контакты
 
