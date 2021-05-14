@@ -1,32 +1,26 @@
 {
   "name": "discord-moderator",
-  "description": "Один из лучших и активно развивающихся модулей для создания модерации в Discord!",
-   "repository": {
+  "version": "1.1.0",
+  "description": "A simple module for adding moderation to Discord bot.",
+  "main": "index.js",
+  "types": "./typings/Moderator.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
     "type": "git",
-    "url": "git+https://github.com/weblol200-discord/discord-moderator.git"
+    "url": "git+https://github.com/xyligan-gp/discord-moderator.git"
   },
-  "version": "1.0.6",
-  "id": "discord-moderator@1.0.6",
-  "author": {
-    "name": "♡ xүℓ[ι]gαη4εg ♡"
-  },
-  "bugs": {
-    "url": "https://github.com/weblol200-discord/discord-moderator/issues"
-  },
-  "dependencies": {
-    "merge-options": "^2.0.0",
-    "quick.db": "^7.1.1",
-    "discord.js": "^12.2.0"
-  },
-  "homepage": "https://github.com/weblol200/discord-moderator/blob/master/README.md",
   "keywords": [
-    "discord",
     "discord.js",
-    "tools",
-    "sanction",
-    "sanctions",
+    "discord",
     "discord-moderator",
-    "discord moderator"
+    "moderation"
   ],
-  "license": "MIT"
+  "author": "xyligan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xyligan-gp/discord-moderator/issues"
+  },
+  "homepage": "https://github.com/xyligan-gp/discord-moderator#readme"
 }
