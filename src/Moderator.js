@@ -43,7 +43,7 @@ module.exports = class Moderator extends EventEmitter {
 
             const mutesData = base.fetch(this.options.muteConfig.tableName);
 
-            if(!mutesData || mutesData == null) return;
+            if(!mutesData || mutesData === null) return;
 
             const searchMutes = mutesData.find(data => data.userID === member.id);
             if(!searchMutes) return;
@@ -81,6 +81,10 @@ module.exports = class Moderator extends EventEmitter {
             if(!this._checkPermissions(['KICK_MEMBERS'], member.guild)) return reject(new ModeratorError(ModeratorErrors.MissingPermissions));
 
             const guild = this.client.guilds.cache.get(member.guild.id);
+            const memberRolePosition = member.roles.highest.position;
+            const clientRolePosition = guild.members.cache.get(this.client.user.id).roles.highest.position;
+
+            if(memberRolePosition > clientRolePosition) return reject(new ModeratorError(ModeratorErrors.MissingAccess));
             
             guild.members.cache.get(member.id).kick(reason);
 
@@ -105,6 +109,10 @@ module.exports = class Moderator extends EventEmitter {
             if(!this._checkPermissions(['BAN_MEMBERS'], member.guild)) return reject(new ModeratorError(ModeratorErrors.MissingPermissions));
 
             const guild = this.client.guilds.cache.get(member.guild.id);
+            const memberRolePosition = member.roles.highest.position;
+            const clientRolePosition = guild.members.cache.get(this.client.user.id).roles.highest.position;
+
+            if(memberRolePosition > clientRolePosition) return reject(new ModeratorError(ModeratorErrors.MissingAccess));
 
             guild.members.cache.get(member.id).ban({ reason: reason, days: 7 });
 

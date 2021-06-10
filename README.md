@@ -261,6 +261,11 @@ moderator.on('muteEnded', data => {
   * Fix minor bugs
   * Added methods: `kick()` & `ban()`
   * Added events: `kick`, `ban`, `addWarn`, `removeWarn`, `addMute`, `removeMute`
+* ***Version 1.1.2***
+  * Code optimization
+  * Fix methods: `kick()` & `ban()`
+* ***Version 1.1.3*** 
+  * Fix package.json
 
 # Useful Links
 

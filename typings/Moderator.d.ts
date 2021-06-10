@@ -169,7 +169,7 @@ declare module 'discord-moderator' {
     }
 
     namespace Moderator {
-        declare const version: '1.1.1'
+        declare const version: '1.1.3'
     }
     
     export = Moderator;
