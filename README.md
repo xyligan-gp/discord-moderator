@@ -7,7 +7,8 @@
 
 ## Install
 
-**Please note: Node.js 14.0.0 or newer is required.**
+**Please note: Node.js 14.0.0 or newer is required.<br>
+All types in brackets mean the type of what the method or event returns.**
 
 ```JS
 npm install discord-moderator@latest
@@ -21,91 +22,149 @@ const { Client } = require('discord.js');
 const client = new Client();
 const Moderator = require('discord-moderator');
 
-const moderator = new Moderator(bot, {
-    mutesTableName: 'mutes',
-    checkMutesCountdown: 10000,
-    warnsTableName: 'warns'
-});
+const moderator = new Moderator(client, {
+  muteSystem: true,
+  warnSystem: true,
+
+  muteConfig: {
+    tableName: 'mutes',
+    checkCountdown: 5000
+  },
+
+  warnConfig: {
+    tableName: 'warns',
+    maxWarns: 3,
+    punishment: 'tempmute',
+    muteTime: '12h'
+  }
+})
 
 client.on('ready', () => {
     console.log('Bot started!');
 })
 
-client.login('TOKEN');
+client.login('YOUR_BOT_TOKEN_HERE'); //https://discord.com/developers/
 ```
 
 ### Module Constructor
 
 ```JS
-const moderator = new Moderator(bot, {
-    mutesTableName: 'mutes',
-    checkMutesCountdown: 10000,
-    warnsTableName: 'warns'
-});
+const moderator = new Moderator(client, {
+  muteSystem: true, // Mute System Status
+  warnSystem: true, // Warn System Status
+
+  muteConfig: {
+    tableName: 'mutes', // Table Name For Mute System
+    checkCountdown: 5000 // Mutes Check Interval
+  },
+
+  warnConfig: {
+    tableName: 'warns', // Table Name For Warn System
+    maxWarns: 3, // Maximum number of warns for punishment
+    punishment: 'tempmute', // User punishment type
+    muteTime: '12h' // Mute time when reaching the warnings limit
+  }
+})
 ```
 
-* **options.mutesTableName**: The property that is responsible for the name of the mutes table.
-* **options.checkMutesCountdown**: The property that is responsible for the interval for checking the mutes.
-* **options.warnsTableName**: The property that is responsible for the name of the warns table.
+* **options.muteSystem**: Property responsible for the status of the muting system.
+* **options.warnSystem**: Property responsible for the status of the warning system.
+
+* **options.muteConfig.tableName**: Property responsible for the name of the table for the mute system.
+* **options.muteConfig.checkCountdown**: Property responsible for the checking interval of all mutes.
+
+* **options.warnConfig.tableName**: Property responsible for the name of the table for the warn system.
+* **options.warnConfig.maxWarns** : Property responsible for the maximum number of warnings.
+* **options.warnConfig.punishment**: Property responsible for the method of punishing the user. Available: `tempmute`, `mute`, `kick`, `ban`.
+* **options.warnConfig.muteTime**: Property responsible for the mute time for the `tempmute` punishment method.
 
 ### Module Methods
+
+* `kick()` - Method for kicking users
+```js
+/**
+ * @param {GuildMember} member Discord GuildMember
+ * @param {string} reason Kick Reason
+ * @param {string} authorID Kick Author ID
+ * @returns {Promise<{ status: boolean, data: { userID: string, guildID: string, reason: string, authorID: string } }>} Kick Object
+*/
+moderator.kick(member, reason, authorID);
+```
+
+* `ban()` - Method for banning users
+```js
+/**
+ * @param {GuildMember} member Discord GuildMember
+ * @param {string} reason Ban Reason
+ * @param {string} authorID Ban Author ID
+ * @returns {Promise<{ status: boolean, data: { userID: string, guildID: string, reason: string, authorID: string } }>} Ban Object
+*/
+moderator.ban(member, reason, authorID);
+```
 
 * `addWarn()` - Method for adding warns to user
 ```JS
 /**
- * @param {Discord.GuildMember} member Discord GuildMember
- * @param {Discord.Channel} channel Discord Channel
- * @param {String} reason Warn Reason
- * @param {String} authorID Warn Author ID
+ * @param {GuildMember} member Discord GuildMember
+ * @param {Channel} channel Discord Channel
+ * @param {string} reason Warn Reason
+ * @param {string} authorID Warn Author ID
+ * @param {string} muteRoleID Mute Role ID
+ * @returns {Promise<{ status: boolean, data: Warn }>} Warn Object
 */
-addWarn(member, channel, reason, authorID);
+moderator.addWarn(member, channel, reason, authorID, muteRoleID);
 ```
 
 * `getWarns()` - Method for getting user warnings
 ```JS
 /**
- * @param {Discord.GuildMember} member Discord GuildMember
+ * @param {GuildMember} member Discord GuildMember
+ * @returns {Promise<{ status: boolean, warns: number, data: Array<Warn> }>} User Warns Object
 */
-getWarns(member);
+moderator.getWarns(member);
 ```
 
 * `removeWarn()` - Method for removing warnings from a user
 ```JS
 /**
- * @param {Discord.GuildMember} member Discord GuildMember
+ * @param {GuildMember} member Discord GuildMember
+ * @returns {Promise<{ status: boolean, warns: number, data: Array<Warn> }>} User Warns Object
 */
-removeWarn(member);
+moderator.removeWarn(member);
 ```
 
 * `mute()` - Method for issuing a mute to a user
 ```JS
 /**
- * @param {Discord.GuildMember} member Discord GuildMember
- * @param {Discord.Channel} channel Discord Channel
- * @param {String} muteRoleID Mute Role ID
- * @param {String} muteReason Mute reason
+ * @param {GuildMember} member Discord GuildMember
+ * @param {Channel} channel Discord Channel
+ * @param {string} muteRoleID Mute Role ID
+ * @param {string} muteReason Mute reason
+ * @returns {Promise<{ status: boolean, data: Mute }>} Mute Object
 */
-mute(member, channel, muteRoleID, muteReason);
+moderator.mute(member, channel, muteRoleID, muteReason);
 ```
 
 * `tempmute()` - Method for issuing a tempmute to a user
 ```JS
 /**
- * @param {Discord.GuildMember} member Discord GuildMember
- * @param {Discord.Channel} channel Discord Channel
- * @param {String} muteRoleID Mute Role ID
- * @param {String} muteTime Mute Time
- * @param {String} muteReason Mute reason
+ * @param {GuildMember} member Discord GuildMember
+ * @param {Channel} channel Discord Channel
+ * @param {string} muteRoleID Mute Role ID
+ * @param {string} muteTime Mute Time
+ * @param {string} muteReason Mute reason
+ * @returns {Promise<{ status: boolean, data: Mute }>} Mute Object
 */
-tempmute(member, channel, muteRoleID, muteTime, muteReason);
+moderator.tempmute(member, channel, muteRoleID, muteTime, muteReason);
 ```
 
 * `unmute()` - Method for removing the mute to the user
 ```JS
 /**
- * @param {Discord.GuildMember} member Discord GuildMember
+ * @param {GuildMember} member Discord GuildMember
+ * @returns {Promise<{ status: boolean }>} Unmute Status
 */
-unmute(member);
+moderator.unmute(member);
 ```
 
 * `clearMutes()` - Method for removing all mutes from the database
@@ -113,7 +172,7 @@ unmute(member);
 /**
  * @returns {boolean} Clearing Status
 */
-clearMutes();
+moderator.clearMutes();
 ```
 
 * `clearWarns()` - Method for removing all warns from the database
@@ -121,15 +180,57 @@ clearMutes();
 /**
  * @returns {boolean} Clearing Status
 */
-clearWarns();
+moderator.clearWarns();
 ```
 
 ### Module Events
 
-* `muteEnded` - Emits when someone adds a mute to the user
+* `kick` - Emits when the user is kicked from the server
 ```JS
+moderator.on('kick', data => {
+  console.log(data);
+})
+```
+
+* `ban` - Emits when a user is banned from the server
+```js
+moderator.on('ban', data => {
+  console.log(data);
+})
+```
+
+* `addWarn` - Emits when a warning is given to the user
+```js
+moderator.on('addWarn', data => {
+  console.log(data);
+})
+```
+
+* `removeWarn` - Emits when warnings are taken from the user
+```js
+moderator.on('removeWarn', data => {
+  console.log(data);
+})
+```
+
+* `addMute` - Emits when the user is given a mute
+```js
+moderator.on('addMute', data => {
+  console.log(data);
+})
+```
+
+* `removeMute` - Emits when the user has removed a mute
+```js
+moderator.on('removeMute', data => {
+  console.log(data);
+})
+```
+
+* `muteEnded` - Emits when the user's temporary mute ends
+```js
 moderator.on('muteEnded', data => {
-        bot.channels.cache.get(data.channelID).send(`<@${data.userID}> removed mute!`);
+  console.log(data);
 })
 ```
 
@@ -152,6 +253,14 @@ moderator.on('muteEnded', data => {
   * Fix all bugs, errors and problems
   * Added event: `muteEnded`
   * Adding TypeScript support
+* ***Version 1.1.1***
+  * Updating the warning system
+  * Modifying the constructor of a module's options
+  * Added check for all constructor options
+  * Fix module typings
+  * Fix minor bugs
+  * Added methods: `kick()` & `ban()`
+  * Added events: `kick`, `ban`, `addWarn`, `removeWarn`, `addMute`, `removeMute`
 
 # Useful Links
 

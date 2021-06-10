@@ -14,9 +14,8 @@ module.exports.run = async (bot, message, args, moderator) => {
     let reason = args.slice(1).join(' ');
     if(!reason) return message.reply('specify reason for warning!');
 
-    moderator.addWarn(member, message.channel, reason, message.author.id)
+    moderator.addWarn(member, message.channel, reason, message.author.id, '842713253103927346')
     .then(data => {
-        console.log(data)
         return message.channel.send(`${member} issued warn for a reason **${reason}**`);
     })
     .catch(err => {

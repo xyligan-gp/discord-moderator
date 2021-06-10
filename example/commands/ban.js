@@ -1,4 +1,4 @@
-const { Client, Message, MessageEmbed } = require('discord.js');
+const { Client, Message } = require('discord.js');
 const Moderator = new (require('discord-moderator'))(new Client());
 
 /**
@@ -9,19 +9,20 @@ const Moderator = new (require('discord-moderator'))(new Client());
 */
 module.exports.run = async (bot, message, args, moderator) => {
     let member = message.mentions.members.last();
-    if(!member) return message.reply('specify user for unwarning!');
+    if(!member) return message.reply('specify user for kicking!');
 
-    moderator.removeWarn(member)
+    let reason = args.slice(1).join(' ');
+    if(!reason) return message.reply('specify reason for kicking!');
+
+    moderator.ban(member, reason, message.author.id)
     .then(data => {
-        if(!data.status) return message.channel.send(`${message.author}, user ${member} has no warnings`);
-        return message.channel.send(`${message.author} removed the warning from ${member}`);
+        return message.channel.send(`${member} successfully banned. Reason: **${reason}**`);
     })
     .catch(err => {
-        console.log(err)
         return message.reply(err.message);
     })
 }
 
 module.exports.help = {
-    name: 'unwarn'
+    name: 'ban'
 }

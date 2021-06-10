@@ -9,11 +9,22 @@ const Moderator = require('discord-moderator')
 */
 module.exports.on = async (bot, commands) => {
     const moderator = new Moderator(bot, {
-        mutesTableName: 'mutes',
-        checkMutesCountdown: 10000,
-        warnsTableName: 'warns'
-    });
+        muteSystem: true,
+        warnSystem: true,
 
+        muteConfig: {
+            tableName: 'mutes',
+            checkCountdown: 5000
+        },
+
+        warnConfig: {
+            tableName: 'warns',
+            maxWarns: 3,
+            punishment: 'tempmute',
+            muteTime: '12h'
+        }
+    });
+    
     bot.on('message', message => {
         if (message.author.bot) return;
         if (message.channel.type != 'text') return;
@@ -25,7 +36,31 @@ module.exports.on = async (bot, commands) => {
         if (cmd && message.content.startsWith(prefix)) cmd.run(bot, message, args, moderator);
     })
 
+    moderator.on('kick', data => {
+        console.log(data);
+    })
+
+    moderator.on('addWarn', data => {
+        console.log(data);
+    })
+
+    moderator.on('addWarn', data => {
+        console.log(data);
+    })
+
+    moderator.on('removeWarn', data => {
+        console.log(data);
+    })
+
+    moderator.on('addMute', data => {
+        console.log(data);
+    })
+
+    moderator.on('removeMute', data => {
+        console.log(data);
+    })
+
     moderator.on('muteEnded', data => {
-        bot.channels.cache.get(data.channelID).send(`<@${data.userID}> removed mute!`);
+        console.log(data);
     })
 }
