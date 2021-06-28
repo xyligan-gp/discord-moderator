@@ -58,7 +58,7 @@ module.exports = class Moderator extends EventEmitter {
             member.roles.add(searchMutes.muteRoleID);
         })
 
-        client.on('ready', () => {
+        client.once('ready', () => {
             this._checkConstructorOptions();
 
             this._checkMutes();
