@@ -1,157 +1,52 @@
-declare module 'discord-moderator' { 
-    import { EventEmitter } from 'events';
-    import { Client, Guild, PermissionString, GuildMember, Channel } from 'discord.js';
+import { Client, Guild, PermissionString, GuildMember, TextChannel, Role, Collection } from 'discord.js';
+import Emitter from 'discord-moderator/src/managers/Emitter.js';
 
-    /**
-     * Moderator Class
-     */
-    class Moderator extends EventEmitter {
+declare module 'discord-moderator' { 
+    class Moderator extends Emitter {
         /**
          * Moderator Version
-         */
+        */
         public version: string;
 
         /**
          * Moderator Author
-         */
+        */
         public author: string;
 
         /**
          * Moderator Ready Status
-         */
+        */
         public ready: boolean;
+
+        public size: number;
+
+        public managers: Array<string>;
 
         /**
          * Moderator Options
-         */
+        */
         public options: ModeratorOptions;
+
+        public utils: UtilsManager;
+        public warns: WarnManager;
+        public punishments: PunishmentManager;
+        public mutes: MuteManager;
+        public roles: RolesManager;
 
         constructor(client: Client, options?: ModeratorOptions);
 
         /**
-         * Method for kicking users
-         * @param {GuildMember} member Discord GuildMember
-         * @param {string} reason Kick Reason
-         * @param {string} authorID Kick Author ID
-         * @returns {Promise<{ status: boolean, data: { userID: string, guildID: string, reason: string, authorID: string } }>} Kick Object
-         */
-        kick(member: GuildMember, reason: string, authorID: string): Promise<{ status: boolean, data: { userID: string, guildID: string, reason: string, authorID: string } }>;
-
-        /**
-         * Method for banning users
-         * @param {GuildMember} member Discord GuildMember
-         * @param {string} reason Ban Reason
-         * @param {string} authorID Ban Author ID
-         * @returns {Promise<{ status: boolean, data: { userID: string, guildID: string, reason: string,  authorID: string } }>} Ban Object
-         */
-        ban(member: GuildMember, reason: string, authorID: string): Promise<{ status: boolean, data: { userID: string, guildID: string, reason: string, authorID: string } }>;
-
-        /**
-         * Method for adding warns to user
-         * @param {GuildMember} member Discord GuildMember
-         * @param {Channel} channel Discord Channel
-         * @param {string} reason Warn Reason
-         * @param {string} authorID Warn Author ID
-         * @param {string} muteRoleID Mute Role ID
-         * @returns {Promise<{ status: boolean, data: WarnData }>} Warn Object
-         */
-        addWarn(member: GuildMember, channel: Channel, reason: string, authorID: string, muteRoleID: string): Promise<{ status: boolean, data: WarnData }>;
-
-        /**
-         * Method for getting user warnings
-         * @param {GuildMember} member Discord GuildMember
-         * @returns {Promise<{ status: boolean, warns: number, data: Array<WarnData> }>} User Warns Object
-         */
-        getWarns(member: GuildMember): Promise<{ status: boolean, warns: number, data: Array<WarnData> }>;
-
-        /**
-         * Method for removing warnings from a user.
-         * @param {GuildMember} member Discord GuildMember
-         * @returns {Promise<{ status: boolean, warns: number, data: Array<WarnData> }>} User Warns Object
-         */
-        removeWarn(member: GuildMember): Promise<{ status: boolean, warns: number, data: Array<WarnData> }>;
-
-        /**
-         * Method for issuing a mute to a user
-         * @param {GuildMember} member Discord GuildMember
-         * @param {Channel} channel Discord Channel
-         * @param {string} muteRoleID Mute Role ID
-         * @param {string} muteReason Mute reason
-         * @returns {Promise<{ status: boolean, data: MuteData }>} Mute Object
-         */
-        mute(member: GuildMember, channel: Channel, muteRoleID: string, muteReason: string): Promise<{ status: boolean, data: MuteData }>;
-
-        /**
-         * Method for issuing a tempmute to a user
-         * @param {GuildMember} member Discord GuildMember
-         * @param {Channel} channel Discord Channel
-         * @param {string} muteRoleID Mute Role ID
-         * @param {string} muteTime Mute Time
-         * @param {string} muteReason Mute Reason
-         * @returns {Promise<{ status: boolean, data: MuteData }>} Tempmute Object
-         */
-        tempmute(member: GuildMember, channel: Channel, muteRoleID: string, muteTime: number, muteReason: string): Promise<{ status: boolean, data: MuteData }>;
-
-        /**
-         * Method for removing the mute to the user
-         * @param {GuildMember} member Discord GuildMember
-         * @returns {Promise<{ status: boolean }>} Unmute Status
-         */
-        unmute(member: GuildMember): Promise<{ status: boolean }>
-
-        /**
-         * Method for removing all mutes from the database
-         * @returns {boolean} Clearing Status
-         */
-        clearMutes(): boolean
-
-        /**
-         * Method for removing all warns from the database
-         * @returns {boolean} Clearing Status
-         */
-        clearWarns(): boolean;
-
-        /**
          * Method for initialization module
-         * @returns {void} Returns Moderator Status
          * @private
-         */
-        private _init(): void;
-
-        /**
-         * Method for check Moderator Options
-         * @returns {ModeratorError} Moderator Error
-         * @private
-         */
-        private _checkConstructorOptions(): ModeratorError;
-
-        /**
-         * Method for checking all mutes
-         * @private
-         */
-        private _checkMutes(): void;
-
-        /**
-         * Method for punishment users.
-         * @param {GuildMember} member Discord GuildMember
-         * @param {Channel} channel Discord Channel
-         * @param {number} warnsLength User Warns Count
-         * @param {string} muteRoleID Mute Role ID
-         * @param {string} authorID Author ID
-         * @returns {Promise<{ status: boolean, data: { punishType: string, userID: string, reason: string } }>} Punish Object
-         * @private
-         */
-        private _punishUser(member: GuildMember, channel: Channel, warnsLength: number, muteRoleID: string, authorID: string): Promise<{ status: boolean, data: { punishType: string, userID: string, reason: string } }>;
-
-        /**
-        * Method for checking permissions on the server
-         * @param {Array<PermissionsString>} permissionsArray Permissions Array
-         * @param {Guild} guild Discord Guild
-         * @returns {boolean} Boolean
-         */
-        private _checkPermissions(permissionsArray: Array<PermissionString>, guild: Guild): boolean;
+        */
+        private initModerator(): void;
 
         on<K extends keyof ModeratorEvents>(
+            event: K,
+            listener: (...args: ModeratorEvents[K][]) => void
+        ): this;
+
+        once<K extends keyof ModeratorEvents>(
             event: K,
             listener: (...args: ModeratorEvents[K][]) => void
         ): this;
@@ -160,16 +55,232 @@ declare module 'discord-moderator' {
     }
 
     class ModeratorError extends Error {
-        /**
-         * Name of the Error
-         */
         public name: 'ModeratorError'
 
-        constructor(message: string | Error) { }
+        constructor(message: string | Error);
+    }
+
+    class UtilsManager {
+        public size: number;
+
+        public methods: Array<string>;
+        
+        constructor(client: Client, options: ModeratorOptions);
+
+        /**
+         * Method for check Moderator Options
+         * @returns Correct Moderator Options
+        */
+        checkOptions(): ModeratorOptions;
+
+        /**
+         * Method for checking client permissions on the server
+         * @param permissionsArray Array with permissions to check
+         * @param guild Discord Guild
+         * @returns Boolean value that will indicate the presence/absence of permissions
+        */
+        checkClientPermissions(permissionsArray: PermissionString, guild: Guild): boolean;
+
+        /**
+         * Method for checking member permissions on the server
+         * @param permissionsArray Array with permissions to check
+         * @param member Guild Member
+         * @returns Boolean value that will indicate the presence/absence of permissions
+        */
+        checkMemberPermissions(permissionsArray: PermissionString, member: GuildMember): boolean;
+    }
+
+    class WarnManager extends Emitter {
+        constructor(client: Client, options: ModeratorOptions);
+
+        public size: number;
+
+        public methods: Array<string>;
+
+        /**
+         * Method for adding warns to user
+         * @param member Guild Member
+         * @param channel Guild Channel
+         * @param reason Warning Reason
+         * @param authorID Warn Author ID
+         * @param muteRoleID Mute Role ID
+         * @returns Returns the warning status and warning data
+        */
+        add(member: GuildMember, channel: TextChannel, reason: string, authorID: string, muteRoleID: string): Promise<{ status: boolean, data: WarnData }>;
+        
+        /**
+         * Method for getting warning information
+         * @param member Guild Member
+         * @param index Warn Index
+         * @returns Returns information about the warning
+        */
+        get(member: GuildMember, index: number): Promise<WarnData>;
+
+        /**
+         * Method for getting all user warnings
+         * @param member Guild Member
+         * @returns Returns an array with all user warnings
+        */
+        getAll(member: GuildMember): Promise<{ status: boolean, warns: number, data: Array<WarnData> }>;
+
+        /**
+         * Method for removing warnings from a user
+         * @param member Guild Member
+         * @returns Returns the status of deleting warnings, their number and information
+        */
+        remove(member: GuildMember): Promise<{ status: boolean, warns: number, data: Array<WarnData> }>;
+
+        /**
+         * Method for removing warnings for a specific server
+         * @param guild Discord Guild
+         * @returns Removing Status
+        */
+        clearGuild(guild: Guild): boolean;
+
+        /**
+         * Method for removing all warns from the database
+         * @returns Removing Status
+        */
+        clearAll(): boolean;
+    }
+
+    class PunishmentManager extends Emitter {
+        constructor(client: Client, options: ModeratorOptions);
+
+        public size: number;
+
+        public methods: Array<string>;
+
+        /**
+         * Method for kicking users
+         * @param member Guild Member
+         * @param reason Kicking Reason
+         * @param authorID Kick Author ID
+         * @returns Returns kick status, reason and more
+        */
+        kick(member: GuildMember, reason: string, authorID: string): Promise<{ status: boolean, data: { userID: string, guildID: string, reason: string, authorID: string } }>;
+        
+        /**
+         * Method for banning users
+         * @param member Guild Member
+         * @param reason Banning Reason
+         * @param authorID Ban Author ID
+         * @returns Returns ban status, reason and more
+        */
+        ban(member: GuildMember, reason: string, authorID: string): Promise<{ status: boolean, data: { userID: string, guildID: string, reason: string, authorID: string } }>;
+
+        /**
+         * Method for punishment users
+         * @param member Guild Member
+         * @param channel Guild Channel
+         * @param muteRoleID Mute Role ID
+         * @param authorID Punish Author ID
+         * @returns Returns the status of the punishment, its type, reason, and more
+        */
+        punish(member: GuildMember, channel: TextChannel, muteRoleID: string, authorID: string): Promise<{ status: boolean, data: { punishType: string, userID: string, reason: string } }>;
+    }
+
+    class MuteManager extends Emitter {
+        constructor(client: Client, options: ModeratorOptions);
+
+        public size: number;
+
+        public methods: Array<string>;
+
+        /**
+         * Method for issuing a mute to a user
+         * @param member Guild Member
+         * @param channel Guild Channel
+         * @param muteRoleID Mute Role ID
+         * @param muteReason Muting Reason
+         * @returns Returns the mute status and information about it
+        */
+        add(member: GuildMember, channel: TextChannel, muteRoleID: string, muteReason?: string): Promise<{ status: boolean, data: MuteData }>;
+
+        /**
+         * Method for issuing a tempmute to a user
+         * @param member Guild Member
+         * @param channel Guild Channel
+         * @param muteRoleID Mute Role ID
+         * @param muteTime Muting Time
+         * @param muteReason Muting Reason
+         * @returns Returns the status of issuing a temporary mute and information about it
+        */
+        temp(member: GuildMember, channel: TextChannel, muteRoleID: string, muteTime: string, muteReason?: string): Promise<{ status: boolean, data: MuteData }>;
+
+        /**
+         * Method for getting information about a user mute on the server
+         * @param member Guild Member
+         * @returns Returns search status and mute information
+        */
+        get(member: GuildMember): Promise<{ status: boolean, searchGuild: boolean, searchUser: boolean, data: MuteData }>;
+
+        /**
+         * Method for getting user mutes on all bot servers
+         * @param member Guild Member
+         * @returns Returns the search status of the user and all his mutes on the bot servers
+        */
+        getAll(member: GuildMember): Promise<{ status: boolean, searchUser: boolean, data: Array<MuteData> }>;
+
+        /**
+         * Method for removing the mute to the user
+         * @param member Guild Member
+         * @returns Returns the status of removing a mutate from a user
+        */
+        remove(member: GuildMember): Promise<{ status: boolean }>;
+
+        /**
+         * Method for removing mutes from a specific server
+         * @param guild Discord Guild
+         * @returns Removing Status
+        */
+        clearGuild(guild: Guild): boolean;
+
+        /**
+         * Method for removing all mutes from the database
+         * @returns Removing Status
+        */
+        clearAll(): boolean;
+    }
+
+    class RolesManager {
+        constructor(client: Client, options: ModeratorOptions);
+
+        public size: number;
+
+        public methods: Array<string>;
+
+        /**
+         * Method for adding roles to server users
+         * @param member Guild Member
+         * @param role Guild Role or Role Name
+        */
+        add(member: GuildMember, role: Role | string): void;
+
+        /**
+         * Method for getting information about the server role
+         * @param role Guild Role or Role Name
+         * @returns Returns information about the server role
+        */
+        get(guild: Guild, role: Role | string): Promise<{ status: boolean, role: Role }>;
+
+        /**
+         * Method to get a collection of all server roles
+         * @param guild Discord Guild
+         * @returns Returns the collection of server roles
+        */
+        getAll(guild: Guild): Promise<Collection<string, Role>>;
+
+        /**
+         * Method for removing roles from server users
+         * @param member Guild Member
+         * @param role Guild Role or Role Name
+        */
+        remove(member: GuildMember, role: Role): void;
     }
 
     namespace Moderator {
-        declare const version: '1.1.3'
+        declare const version: '1.1.5'
     }
     
     export = Moderator;
@@ -180,32 +291,29 @@ declare module 'discord-moderator' {
  */
 interface ModeratorOptions {
     /**
-     * Mute System Status
+     * MuteManager Status
      */
-    muteSystem: boolean;
+    muteManager: boolean;
 
     /**
-     * Warn System Status
+     * WarnManager Status
      */
-    warnSystem: boolean;
+    warnManager: boolean;
 
     /**
-     * Mute System Configuration
+     * MuteManager Configuration
      */
-    muteConfig: MuteConfiguration;
+    muteConfig: MuteManagerConfiguration;
 
     /**
-     * Warn System Configuration
+     * WarnManager Configuration
      */
-    warnConfig: WarnConfiguration;
+    warnConfig: WarnManagerConfiguration;
 }
 
-/**
- * Mute System Configuration
- */
-interface MuteConfiguration {
+interface MuteManagerConfiguration {
     /**
-     * Table Name For Mute System
+     * Table Name For MuteManager
      */
     tableName: string;
 
@@ -215,12 +323,9 @@ interface MuteConfiguration {
     checkCountdown: number;
 }
 
-/**
- * Warn System Configuration
- */
-interface WarnConfiguration {
+interface WarnManagerConfiguration {
     /**
-     * Table Name For Warn System
+     * Table Name For WarnManager
      */
     tableName: string;
 
@@ -240,9 +345,6 @@ interface WarnConfiguration {
     muteTime: string;
 }
 
-/**
- * Mute Object
- */
 interface MuteData {
     /**
      * Guild ID
@@ -265,7 +367,7 @@ interface MuteData {
     muteRoleID: string;
 
     /**
-     * Mute Time
+     * Muting Time
      */
     muteTime: number;
 
@@ -307,7 +409,7 @@ interface WarnData {
     warnNumber: number;
 
     /**
-     * Warn Reason
+     * Warning Reason
      */
     warnReason: string;
 
@@ -317,10 +419,12 @@ interface WarnData {
     warnBy: string;
 }
 
-/**
- * All module events
- */
 interface ModeratorEvents {
+    /**
+     * Emits when the Moderator is initialized
+     */
+    ready: Client;
+    
     /**
      * Emits when the user is kicked from the server
      */
@@ -339,7 +443,7 @@ interface ModeratorEvents {
     /**
      * Emits when warnings are taken from the user
      */
-    removeWarn: { warns: number, data: Array<WarnData> };
+    removeWarn: { guildID: string, userID: string, warns: number, data: Array<WarnData> };
 
     /**
      * Emits when the user is given a mute
