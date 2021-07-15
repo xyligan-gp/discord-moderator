@@ -1,6 +1,7 @@
 module.exports = {
     warnManagerDisabled: `The warning system is disabled by the Moderator option called 'warnManager'`,
     muteManagerDisabled: `Mute manager is disabled by Moderator option called 'muteManager'`,
+    blacklistManagerDisabled: `Blacklist manager is disabled by Moderator option called 'blacklistManager'`,
     requireClient: `Client is a required option!`,
     parameterNotFound: `The parameter '{parameter}' was not received!`,
     cleanBase: `{parameter} not found in the database!`,
@@ -43,6 +44,20 @@ module.exports = {
             invalidTypeArg: `The parameter '{parameter}' has an invalid type!`,
             notHasRole: `User '{userID}' not already has a role named '{roleName}'`,
             error: `An unexpected error occurred while removing a role!`
+        },
+
+        delete: {
+            error: `An unexpected error occurred while deleting a role`
+        }
+    },
+
+    blacklistManager: {
+        add: {
+            userBlocked: `User '{userID}' is already blocked on server '{guildID}'!`
+        },
+
+        remove: {
+            userNotBlocked: `User '{userID}' is already unblocked on server '{guildID}'!`
         }
     }
 }

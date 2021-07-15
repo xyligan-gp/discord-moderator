@@ -8,26 +8,18 @@ const WarnManager = require('discord-moderator/src/managers/WarnManager.js');
 const PunishmentManager = require('discord-moderator/src/managers/PunishmentManager.js');
 const MuteManager = require('discord-moderator/src/managers/MuteManager.js');
 const RolesManager = require('discord-moderator/src/managers/RolesManager.js');
+const BlacklistManager = require('discord-moderator/src/managers/BlacklistManager.js');
 const Emitter = require('discord-moderator/src/Emitter');
 
 class Moderator extends Emitter {
     /**
      * @param {Client} client Discord Client
-     * @param {Object} options Moderator Options
-     * @param {Boolean} options.muteManager MuteManager Status
-     * @param {Boolean} options.warnManager WarnManager Status
-     * @param {Object} options.muteConfig MuteManager Configuration
-     * @param {String} options.muteConfig.tableName Table Name For MuteManager
-     * @param {Number} options.muteConfig.checkCountdown Mutes Check Interval
-     * @param {Object} options.warnConfig WarnManager Configuration
-     * @param {String} options.warnConfig.tableName Table Name For WarnManager
-     * @param {Number} options.warnConfig.maxWarns Maximum number of warns for punishment
-     * @param {String} options.warnConfig.punishment User punishment type
-     * @param {String} options.warnConfig.muteTime Mute time when reaching the warnings limit
+     * @param {ModeratorOptions} options Moderator Options
     */
     constructor(client, options) {
         super();
-        if (!client) return new ModeratorError(ModeratorErrors.requireClient);
+
+        if(!client) return new ModeratorError(ModeratorErrors.requireClient);
 
         this.client = client;
 
@@ -40,7 +32,7 @@ class Moderator extends Emitter {
 
         /**
          * Moderator Options
-         * @type {Object}
+         * @type {ModeratorOptions}
         */
         this.options = fetchedOptions;
 
@@ -61,6 +53,12 @@ class Moderator extends Emitter {
          * @type {String}
         */
         this.author = require('../package.json').author;
+
+        /**
+         * Moderator Documentation Link
+         * @type {String}
+        */
+        this.docs = require('../package.json').homepage;
 
         /**
          * Moderator Warn Manager
@@ -87,10 +85,16 @@ class Moderator extends Emitter {
         this.roles = new RolesManager(client, this.options);
 
         /**
+         * Moderator Blacklist Manager
+         * @type {BlacklistManager}
+        */
+        this.blacklist = new BlacklistManager(client, this.options);
+
+        /**
          * Moderator Managers
          * @type {Array<String>}
         */
-        this.managers = ['MuteManager', 'PunishmentManager', 'RolesManager', 'UtilsManager', 'WarnManager'];
+        this.managers = ['BlacklistManager', 'MuteManager', 'PunishmentManager', 'RolesManager', 'UtilsManager', 'WarnManager'];
 
         /**
          * Moderator Managers Count
@@ -135,7 +139,7 @@ class Moderator extends Emitter {
 
                             if(muteRolePosition > clientRolePosition) return new ModeratorError(ModeratorErrors.MissingAccess);
 
-                            await member.roles.remove(mutesData[i].muteRoleID);
+                            await member.roles.remove(mutesData[i].muteRoleID).catch(err => { return });
                         
                             const newBase = mutesData.filter(obj => obj.nowTime != muteNowTime);
                             base.set(this.options.muteConfig.tableName, newBase);
@@ -240,6 +244,26 @@ class Moderator extends Emitter {
  * @param {Number} callback.muteTime Muting Time
  * @param {Number} callback.nowTime Current Time
  * @param {String} callback.muteReason Muting Reason
+*/
+
+/**
+ * Moderator Options Object
+ * @typedef ModeratorOptions
+ * @property {Boolean} muteManager MuteManager Status
+ * @property {Boolean} warnManager WarnManager Status
+ * @property {Boolean} blacklistManager BlacklistManager Status
+ * @property {Object} muteConfig MuteManager Configuration
+ * @property {String} muteConfig.tableName Table Name For MuteManager
+ * @property {String} muteConfig.checkCountdown Mutes Check Interval
+ * @property {Object} warnConfig WarnManager Configuration
+ * @property {String} warnConfig.tableName Table Name For WarnManager
+ * @property {Number} warnConfig.maxWarns Maximum number of warns for punishment
+ * @property {String} warnConfig.punishment User punishment type
+ * @property {String} warnConfig.muteTime Mute time when reaching the warnings limit
+ * @property {Object} blacklistConfig BlacklistManager Status
+ * @property {String} blacklistConfig.tableName Table Name For BlacklistManager
+ * @property {String} blacklistConfig.punishment User punishment type
+ * @type {Object}
 */
 
 module.exports = Moderator;

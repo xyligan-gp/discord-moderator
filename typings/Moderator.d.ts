@@ -1,8 +1,10 @@
-import { Client, Guild, PermissionString, GuildMember, TextChannel, Role, Collection } from 'discord.js';
+import { Client, Guild, PermissionString, GuildMember, TextChannel, Role, Collection, User } from 'discord.js';
 import Emitter from 'discord-moderator/src/managers/Emitter.js';
 
 declare module 'discord-moderator' { 
     class Moderator extends Emitter {
+        constructor(client: Client, options?: ModeratorOptions);
+
         /**
          * Moderator Version
         */
@@ -14,12 +16,23 @@ declare module 'discord-moderator' {
         public author: string;
 
         /**
+         * Moderator Documentation Link
+        */
+        public docs: string;
+
+        /**
          * Moderator Ready Status
         */
         public ready: boolean;
 
+        /**
+         * Moderator Managers Count
+        */
         public size: number;
 
+        /**
+         * Moderator Managers
+        */
         public managers: Array<string>;
 
         /**
@@ -32,8 +45,7 @@ declare module 'discord-moderator' {
         public punishments: PunishmentManager;
         public mutes: MuteManager;
         public roles: RolesManager;
-
-        constructor(client: Client, options?: ModeratorOptions);
+        public blacklist: BlacklistManager;
 
         /**
          * Method for initialization module
@@ -55,17 +67,23 @@ declare module 'discord-moderator' {
     }
 
     class ModeratorError extends Error {
-        public name: 'ModeratorError'
-
         constructor(message: string | Error);
+
+        public name: 'ModeratorError'
     }
 
     class UtilsManager {
+        constructor(client: Client, options: ModeratorOptions);
+
+        /**
+         * Manager Methods Count
+        */
         public size: number;
 
+        /**
+         * Manager Methods
+        */
         public methods: Array<string>;
-        
-        constructor(client: Client, options: ModeratorOptions);
 
         /**
          * Method for check Moderator Options
@@ -79,7 +97,7 @@ declare module 'discord-moderator' {
          * @param guild Discord Guild
          * @returns Boolean value that will indicate the presence/absence of permissions
         */
-        checkClientPermissions(permissionsArray: PermissionString, guild: Guild): boolean;
+        checkClientPermissions(permissionsArray: Array<PermissionString>, guild: Guild): boolean;
 
         /**
          * Method for checking member permissions on the server
@@ -87,14 +105,43 @@ declare module 'discord-moderator' {
          * @param member Guild Member
          * @returns Boolean value that will indicate the presence/absence of permissions
         */
-        checkMemberPermissions(permissionsArray: PermissionString, member: GuildMember): boolean;
+        checkMemberPermissions(permissionsArray: Array<PermissionString>, member: GuildMember): boolean;
+
+        /**
+         * Method for getting a random number in between
+         * @param min Minimum value
+         * @param max Maximum value
+         * @returns Returns a random number in a given range
+        */
+        getRundomNumber(min: number, max: number): number;
+
+        /**
+         * Method for getting a random string
+         * @param stringsArray Strings Array
+         * @returns Returns a random string
+        */
+        getRandomString(stringsArray: Array<string>): string;
+
+        /**
+         * Method for checking user existence
+         * @param guild Discord Guild
+         * @param member Guild Member or User ID
+         * @returns Returns the user verification status and information about him
+        */
+        fetchMember(guild: Guild, member: GuildMember | string): { status: boolean, data: User | string };
     }
 
     class WarnManager extends Emitter {
         constructor(client: Client, options: ModeratorOptions);
 
+        /**
+         * Manager Methods Count
+        */
         public size: number;
 
+        /**
+         * Manager Methods
+        */
         public methods: Array<string>;
 
         /**
@@ -135,20 +182,26 @@ declare module 'discord-moderator' {
          * @param guild Discord Guild
          * @returns Removing Status
         */
-        clearGuild(guild: Guild): boolean;
+        clearGuild(guild: Guild): Promise<boolean>;
 
         /**
          * Method for removing all warns from the database
          * @returns Removing Status
         */
-        clearAll(): boolean;
+        clearAll(): Promise<boolean>;
     }
 
     class PunishmentManager extends Emitter {
         constructor(client: Client, options: ModeratorOptions);
 
+        /**
+         * Manager Methods Count
+        */
         public size: number;
 
+        /**
+         * Manager Methods
+        */
         public methods: Array<string>;
 
         /**
@@ -158,7 +211,7 @@ declare module 'discord-moderator' {
          * @param authorID Kick Author ID
          * @returns Returns kick status, reason and more
         */
-        kick(member: GuildMember, reason: string, authorID: string): Promise<{ status: boolean, data: { userID: string, guildID: string, reason: string, authorID: string } }>;
+        kick(member: GuildMember, reason: string, authorID: string): Promise<{ status: boolean, data: KickData }>;
         
         /**
          * Method for banning users
@@ -167,7 +220,7 @@ declare module 'discord-moderator' {
          * @param authorID Ban Author ID
          * @returns Returns ban status, reason and more
         */
-        ban(member: GuildMember, reason: string, authorID: string): Promise<{ status: boolean, data: { userID: string, guildID: string, reason: string, authorID: string } }>;
+        ban(member: GuildMember, reason: string, authorID: string): Promise<{ status: boolean, data: BanData }>;
 
         /**
          * Method for punishment users
@@ -177,14 +230,20 @@ declare module 'discord-moderator' {
          * @param authorID Punish Author ID
          * @returns Returns the status of the punishment, its type, reason, and more
         */
-        punish(member: GuildMember, channel: TextChannel, muteRoleID: string, authorID: string): Promise<{ status: boolean, data: { punishType: string, userID: string, reason: string } }>;
+        punish(member: GuildMember, channel: TextChannel, muteRoleID: string, authorID: string): Promise<{ status: boolean, data: PunishData }>;
     }
 
     class MuteManager extends Emitter {
         constructor(client: Client, options: ModeratorOptions);
 
+        /**
+         * Manager Methods Count
+        */
         public size: number;
 
+        /**
+         * Manager Methods
+        */
         public methods: Array<string>;
 
         /**
@@ -234,28 +293,43 @@ declare module 'discord-moderator' {
          * @param guild Discord Guild
          * @returns Removing Status
         */
-        clearGuild(guild: Guild): boolean;
+        clearGuild(guild: Guild): Promise<boolean>;
 
         /**
          * Method for removing all mutes from the database
          * @returns Removing Status
         */
-        clearAll(): boolean;
+        clearAll(): Promise<boolean>;
     }
 
     class RolesManager {
         constructor(client: Client, options: ModeratorOptions);
 
+        /**
+         * Manager Methods Count
+        */
         public size: number;
 
+        /**
+         * Manager Methods
+        */
         public methods: Array<string>;
+
+        /**
+         * Method for creating roles on the server
+         * @param guild Discord Guild
+         * @param options Role Options
+         * @returns Returns the role creation status and information about it
+        */
+        create(guild: Guild, options: RoleOptions): Promise<{ status: boolean, role: Role }>;
 
         /**
          * Method for adding roles to server users
          * @param member Guild Member
          * @param role Guild Role or Role Name
+         * @returns Returns the status of adding a role and other information
         */
-        add(member: GuildMember, role: Role | string): void;
+        add(member: GuildMember, role: Role | string): Promise<{ status: boolean, member: GuildMember, role: Role }>;
 
         /**
          * Method for getting information about the server role
@@ -275,188 +349,231 @@ declare module 'discord-moderator' {
          * Method for removing roles from server users
          * @param member Guild Member
          * @param role Guild Role or Role Name
+         * @returns Returns the status of removing a role from a user and other information
         */
-        remove(member: GuildMember, role: Role): void;
+        remove(member: GuildMember, role: Role): Promise<{ status: boolean, member: GuildMember, role: Role }>;
+
+        /**
+         * Method for removing roles from the server
+         * @param guild Discord Guild
+         * @param role Guild Role or Name
+         * @returns Returns the status of removing a role from the server and information about it
+        */
+        delete(guild: Guild, role: Role | string): Promise<{ status: boolean, role: Role }>;
+    }
+
+    class BlacklistManager {
+        constructor(client: Client, options: ModeratorOptions);
+
+        /**
+         * Manager Methods Count
+        */
+        public size: number;
+
+        /**
+         * Manager Methods
+        */
+        public methods: Array<string>;
+
+        /**
+         * Method for blocking a user on the server
+         * @param guild Discord Guild
+         * @param member Guild Member
+         * @param reason Blocking Reason
+         * @param authorID Block Author ID
+         * @returns Returns the user blocking status and information about it
+        */
+        add(guild: Guild, member: GuildMember | string, reason: string, authorID: string): Promise<{ status: boolean, data: BlockData }>;
+
+        /**
+         * Method for getting the status of a user blocking and information about it
+         * @param guild Discord Guild
+         * @param member Guild Member or User ID
+         * @returns Returns the user block status and information about it
+        */
+        get(guild: Guild, member: GuildMember | string): Promise<{ status: boolean, data: BlockData }>;
+
+        /**
+         * Method for getting all server blocks
+         * @param guild Discord Guild
+         * @returns Returns information about server blocks
+        */
+        getAll(guild: Guild): Promise<{ status: boolean, data: Array<BlockData> }>;
+
+        /**
+         * Method for removing blocks from a specific server
+         * @param guild Discord Guild
+         * @returns Removing Status
+        */
+        clearGuild(guild: Guild): Promise<boolean>;
+
+        /**
+         * Method for removing all blocks from the database
+         * @returns Removing Status
+        */
+        clearAll(): Promise<boolean>;
+
+        /**
+         * Method for removing a block to a user
+         * @param guild Discord Guild
+         * @param member Guild Member or User ID
+         * @returns Returns the user unlock status and information about it
+        */
+        remove(guild: Guild, member: GuildMember | string): Promise<{ status: boolean, searchUser: boolean, data: BlockData }>;
     }
 
     namespace Moderator {
-        declare const version: '1.1.5'
+        declare const version: '1.1.6'
     }
     
     export = Moderator;
-}
 
-/**
- * Moderator Options
- */
-interface ModeratorOptions {
-    /**
-     * MuteManager Status
-     */
-    muteManager: boolean;
-
-    /**
-     * WarnManager Status
-     */
-    warnManager: boolean;
-
-    /**
-     * MuteManager Configuration
-     */
-    muteConfig: MuteManagerConfiguration;
-
-    /**
-     * WarnManager Configuration
-     */
-    warnConfig: WarnManagerConfiguration;
+    interface ModeratorOptions {
+        /**
+         * MuteManager Status
+        */
+        muteManager: boolean;
+    
+        /**
+         * WarnManager Status
+        */
+        warnManager: boolean;
+    
+        /**
+         * BlicklistManager Status
+        */
+        blacklistManager: boolean;
+    
+        /**
+         * MuteManager Configuration
+        */
+        muteConfig: MuteManagerConfiguration;
+    
+        /**
+         * WarnManager Configuration
+        */
+        warnConfig: WarnManagerConfiguration;
+    
+        /**
+         * BlacklistManager Configuration
+        */
+        blacklistConfig: BlacklistManagerConfiguration;
+    }
 }
 
 interface MuteManagerConfiguration {
-    /**
-     * Table Name For MuteManager
-     */
     tableName: string;
-
-    /**
-     * Mutes Check Interval
-     */
     checkCountdown: number;
 }
 
 interface WarnManagerConfiguration {
-    /**
-     * Table Name For WarnManager
-     */
     tableName: string;
-
-    /**
-     * Maximum number of warns for punishment
-     */
     maxWarns: number;
-
-    /**
-     * User punishment type
-     */
     punishment: 'tempmute' | 'mute' | 'kick' | 'ban';
-
-    /**
-     * Mute time when reaching the warnings limit
-     */
     muteTime: string;
 }
 
+interface BlacklistManagerConfiguration {
+    tableName: string;
+    punishment: 'kick' | 'ban';
+}
+
 interface MuteData {
-    /**
-     * Guild ID
-     */
     guildID: string;
-
-    /**
-     * User ID
-     */
     userID: string;
-
-    /**
-     * Channel ID
-     */
     channelID: string;
-
-    /**
-     * Mute Role ID
-     */
     muteRoleID: string;
-
-    /**
-     * Muting Time
-     */
     muteTime: number;
-
-    /**
-     * Current Time
-     */
     nowTime: number;
-
-    /**
-     * Mute Reason
-     */
     muteReason: string;
 }
 
 interface WarnData {
-    /**
-     * Guild ID
-     */
     guildID: string;
-
-    /**
-     * User ID
-     */
     userID: string;
-
-    /**
-     * Channel ID
-     */
     channelID: string;
-
-    /**
-     * Current Time
-     */
     nowTime: number;
-
-    /**
-     * Warn Index
-     */
     warnNumber: number;
-
-    /**
-     * Warning Reason
-     */
     warnReason: string;
-
-    /**
-     * Warn By User
-     */
     warnBy: string;
+}
+
+interface KickData {
+    userID: string;
+    guildID: string;
+    reason: string;
+    authorID: string;
+}
+
+interface BanData {
+    userID: string;
+    guildID: string;
+    reason: string;
+    authorID: string;
+}
+
+interface PunishData {
+    punishType: string;
+    userID: string;
+    reason: string;
+}
+
+interface RoleOptions {
+    roleName: string;
+    roleColor?: 'DEFAULT' | 'WHITE' | 'AQUA' | 'GREEN' | 'BLUE' | 'YELLOW' | 'PURPLE' | 'LUMINOUS_VIVID_PINK' | 'GOLD' | 'ORANGE' | 'RED' | 'GREY' | 'DARKER GREY' | 'NAVY' | 'DARK_AQUA' | 'DARK_GREEN' | 'DARK_BLUE' | 'DARK_PURPLE' | 'DARK_VIVID_PINK' | 'DARK_GOLD' | 'DARK_ORANGE' | 'DARK_RED' | 'DARK_GREY' | 'LIGHT_GREY' | 'DARK_NAVY' | 'BLURPLE' | 'GREYPLE' | 'DARK_BUT_NOT_BLACK' | 'NOT_QUITE_BLACK' | 'RANDOM';
+    hoisted?: boolean;
+    position?: number;
+    permissionsArray?: Array<PermissionString>;
+    mentionable?: boolean;
+}
+
+interface BlockData {
+    guildID: string;
+    userID: string;
+    nowTime: number;
+    blockNumber: number;
+    blockReason: string;
+    blockedBy: string;
 }
 
 interface ModeratorEvents {
     /**
      * Emits when the Moderator is initialized
-     */
+    */
     ready: Client;
     
     /**
      * Emits when the user is kicked from the server
-     */
+    */
     kick: { userID: string, guildID: string, reason: string, authorID: string };
 
     /**
      * Emits when a user is banned from the server
-     */
+    */
     ban: { userID: string, guildID: string, reason: string, authorID: string };
 
     /**
      * Emits when a warning is given to the user
-     */
+    */
     addWarn: WarnData;
 
     /**
      * Emits when warnings are taken from the user
-     */
+    */
     removeWarn: { guildID: string, userID: string, warns: number, data: Array<WarnData> };
 
     /**
      * Emits when the user is given a mute
-     */
+    */
     addMute: MuteData;
 
     /**
      * Emits when the user has removed a mute
-     */
+    */
     removeMute: { userID: string, guildID: string };
 
     /**
      * Emits when the user's temporary mute ends
-     */
+    */
     muteEnded: MuteData;
 }

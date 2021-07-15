@@ -29,5 +29,19 @@ module.exports = {
         warnReason: String(),
 
         warnBy: String()
+    },
+
+    Block: {
+        guildID: String(),
+
+        userID: String(),
+
+        nowTime: Number(),
+
+        blockNumber: Number(),
+
+        blockReason: String(),
+
+        blockedBy: String()
     }
 }

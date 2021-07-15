@@ -9,21 +9,13 @@ const Emitter = require('discord-moderator/src/Emitter.js');
 class WarnManager extends Emitter {
     /**
      * @param {Client} client Discord Client
-     * @param {Object} options Moderator Options
-     * @param {Boolean} options.muteManager MuteManager Status
-     * @param {Boolean} options.warnManager WarnManager Status
-     * @param {Object} options.muteConfig MuteManager Configuration
-     * @param {String} options.muteConfig.tableName Table Name For MuteManager
-     * @param {Number} options.muteConfig.checkCountdown Mutes Check Interval
-     * @param {Object} options.warnConfig WarnManager Configuration
-     * @param {String} options.warnConfig.tableName Table Name For WarnManager
-     * @param {Number} options.warnConfig.maxWarns Maximum number of warns for punishment
-     * @param {String} options.warnConfig.punishment User punishment type
-     * @param {String} options.warnConfig.muteTime Mute time when reaching the warnings limit
+     * @param {ModeratorOptions} options Moderator Options
     */
     constructor(client, options) {
         super();
         
+        if(!client) return new ModeratorError(ModeratorErrors.requireClient);
+
         this.client = client;
         this.options = options;
         this.punishments = new PunishmentManager(client, options);
@@ -48,7 +40,7 @@ class WarnManager extends Emitter {
      * @param {String} reason Warning Reason
      * @param {String} authorID Warn Author ID
      * @param {String} muteRoleID Mute Role ID
-     * @returns {Promise<{ status: Boolean, data: Object }>} Returns the warning status and warning data
+     * @returns {Promise<{ status: Boolean, data: WarnData }>} Returns the warning status and warning data
     */
     add(member, channel, reason, authorID, muteRoleID) {
         return new Promise(async (resolve, reject) => {
@@ -93,7 +85,7 @@ class WarnManager extends Emitter {
      * Method for getting warning information
      * @param {GuildMember} member Guild Member
      * @param {Number} index Warn Index
-     * @returns {Object} Returns information about the warning
+     * @returns {Promise<WarnData>} Returns information about the warning
     */
     get(member, index) {
         return new Promise(async (resolve, reject) => {
@@ -115,7 +107,7 @@ class WarnManager extends Emitter {
     /**
      * Method for getting all user warnings
      * @param {GuildMember} member Guild Member
-     * @returns {Promise<{ status: Boolean, warns: Number, data: Array<Object> }>} Returns an array with all user warnings
+     * @returns {Promise<{ status: Boolean, warns: Number, data: Array<WarnData> }>} Returns an array with all user warnings
     */
     getAll(member) {
         return new Promise(async (resolve, reject) => {
@@ -158,7 +150,7 @@ class WarnManager extends Emitter {
     /**
      * Method for removing warnings from a user
      * @param {GuildMember} member Guild Member
-     * @returns {Promise<{ status: Boolean, warns: Number, data: Array<Object> }>} Returns the status of deleting warnings, their number and information.
+     * @returns {Promise<{ status: Boolean, warns: Number, data: Array<WarnData> }>} Returns the status of deleting warnings, their number and information.
     */
     remove(member) {
         return new Promise(async (resolve, reject) => {
@@ -188,33 +180,72 @@ class WarnManager extends Emitter {
     /**
      * Method for removing warnings for a specific server
      * @param {Guild} guild Discord Guild
-     * @returns {Boolean} Removing Status
+     * @returns {Promise<Boolean>} Removing Status
     */
     clearGuild(guild) {
-        if(!this.options.warnManager) return new ModeratorError(ModeratorErrors.warnManagerDisabled);
+        return new Promise(async (resolve, reject) => {
+            if(!this.options.warnManager) return reject(new ModeratorError(ModeratorErrors.warnManagerDisabled));
 
-        const guildData = base.fetch(`${this.options.warnConfig.tableName}.${guild.id}`);
-        if(!guildData || guildData === null) return false;
+            if(!guild) return reject(new ModeratorError(ModeratorErrors.parameterNotFound.replace('{parameter}', 'guild')));
 
-        base.delete(`${this.options.warnConfig.tableName}.${guild.id}`);
+            const guildData = base.fetch(`${this.options.warnConfig.tableName}.${guild.id}`);
+            if(!guildData || guildData === null) return resolve(false);
 
-        return true;
+            base.delete(`${this.options.warnConfig.tableName}.${guild.id}`);
+
+            return resolve(true);
+        })
     }
 
     /**
      * Method for removing all warns from the database
-     * @returns {Boolean} Removing Status
+     * @returns {Promise<Boolean>} Removing Status
     */
     clearAll() {
-        if(!this.options.warnManager) return new ModeratorError(ModeratorErrors.warnManagerDisabled);
+        return new Promise(async (resolve, reject) => {
+            if(!this.options.warnManager) return reject(new ModeratorError(ModeratorErrors.warnManagerDisabled));
 
-        const warnsData = base.fetch(this.options.warnConfig.tableName);
-        if(!warnsData || warnsData == null) return false;
+            const warnsData = base.fetch(this.options.warnConfig.tableName);
+            if(!warnsData || warnsData == null) return resolve(false);
 
-        base.delete(this.options.warnConfig.tableName);
+            base.delete(this.options.warnConfig.tableName);
 
-        return true;
+            return resolve(true);
+        })
     }
 }
+
+/**
+ * Moderator Options Object
+ * @typedef ModeratorOptions
+ * @property {Boolean} muteManager MuteManager Status
+ * @property {Boolean} warnManager WarnManager Status
+ * @property {Boolean} blacklistManager BlacklistManager Status
+ * @property {Object} muteConfig MuteManager Configuration
+ * @property {String} muteConfig.tableName Table Name For MuteManager
+ * @property {String} muteConfig.checkCountdown Mutes Check Interval
+ * @property {Object} warnConfig WarnManager Configuration
+ * @property {String} warnConfig.tableName Table Name For WarnManager
+ * @property {Number} warnConfig.maxWarns Maximum number of warns for punishment
+ * @property {String} warnConfig.punishment User punishment type
+ * @property {String} warnConfig.muteTime Mute time when reaching the warnings limit
+ * @property {Object} blacklistConfig BlacklistManager Status
+ * @property {String} blacklistConfig.tableName Table Name For BlacklistManager
+ * @property {String} blacklistConfig.punishment User punishment type
+ * @type {Object}
+*/
+
+/**
+ * Moderator Warn Data
+ * @typedef WarnData
+ * @property {String} guildID Discord Guild ID
+ * @property {String} userID Guild Member ID
+ * @property {String} channelID Guild Channel ID
+ * @property {Number} nowTime Current time
+ * @property {Number} warnNumber Warn Number
+ * @property {String} warnReason Warn Reason
+ * @property {String} warnBy Warn Author ID
+ * @type {Object}
+*/
 
 module.exports = WarnManager;

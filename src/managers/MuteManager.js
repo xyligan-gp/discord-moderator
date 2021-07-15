@@ -10,20 +10,12 @@ const Emitter = require('discord-moderator/src/Emitter');
 class MuteManager extends Emitter {
     /**
      * @param {Client} client Discord Client
-     * @param {Object} options Moderator Options
-     * @param {Boolean} options.muteManager MuteManager Status
-     * @param {Boolean} options.warnManager WarnManager Status
-     * @param {Object} options.muteConfig MuteManager Configuration
-     * @param {String} options.muteConfig.tableName Table Name For MuteManager
-     * @param {Number} options.muteConfig.checkCountdown Mutes Check Interval
-     * @param {Object} options.warnConfig WarnManager Configuration
-     * @param {String} options.warnConfig.tableName Table Name For WarnManager
-     * @param {Number} options.warnConfig.maxWarns Maximum number of warns for punishment
-     * @param {String} options.warnConfig.punishment User punishment type
-     * @param {String} options.warnConfig.muteTime Mute time when reaching the warnings limit
+     * @param {ModeratorOptions} options Moderator Options
     */
     constructor(client, options) {
         super();
+
+        if(!client) return new ModeratorError(ModeratorErrors.requireClient);
 
         this.client = client;
         this.options = options;
@@ -58,9 +50,9 @@ class MuteManager extends Emitter {
             const muteRolePosition = member.guild.roles.cache.get(searchMutes.muteRoleID).position;
             const clientRolePosition = member.guild.members.cache.get(client.user.id).roles.highest.position;
 
-            if(muteRolePosition > clientRolePosition) return new ModeratorError(ModeratorErrors.MissingAccess);
+            if(muteRolePosition >= clientRolePosition) return new ModeratorError(ModeratorErrors.MissingAccess);
 
-            member.roles.add(searchMutes.muteRoleID);
+            member.roles.add(searchMutes.muteRoleID).catch(err => { return });
         })
     }
 
@@ -70,7 +62,7 @@ class MuteManager extends Emitter {
      * @param {TextChannel} channel Guild Channe;
      * @param {String} muteRoleID Mute Role ID
      * @param {String} muteReason Muting Reason
-     * @returns {Promise<{ status: Boolean, data: Object }>} Returns the mute status and information about it
+     * @returns {Promise<{ status: Boolean, data: MuteData }>} Returns the mute status and information about it
     */
     add(member, channel, muteRoleID, muteReason) {
         return new Promise(async (resolve, reject) => {
@@ -79,6 +71,7 @@ class MuteManager extends Emitter {
             if(!member) return reject(new ModeratorError(ModeratorErrors.parameterNotFound.replace('{parameter}', 'member')));
             if(!channel) return reject(new ModeratorError(ModeratorErrors.parameterNotFound.replace('{parameter}', 'channel')));
             if(!muteRoleID) return reject(new ModeratorError(ModeratorErrors.parameterNotFound.replace('{parameter}', 'muteRoleID')));
+            if(!muteReason) return reject(new ModeratorError(ModeratorErrors.parameterNotFound.replace('{parameter}', 'muteReason')));
             
             if(!this.utils.checkClientPermissions(['MANAGE_ROLES'], member.guild)) return reject(new ModeratorError(ModeratorErrors.MissingPermissions));
 
@@ -94,11 +87,11 @@ class MuteManager extends Emitter {
             const muteRolePosition = member.guild.roles.cache.get(muteRoleID).position;
             const clientRolePosition = member.guild.members.cache.get(this.client.user.id).roles.highest.position;
 
-            if(muteRolePosition > clientRolePosition) return reject(new ModeratorError(ModeratorErrors.MissingAccess));
+            if(muteRolePosition >= clientRolePosition) return reject(new ModeratorError(ModeratorErrors.MissingAccess));
 
             if(!mutesData || mutesData == null) {
                 try {
-                    await member.roles.add(muteRoleID);
+                    await member.roles.add(muteRoleID).catch(err => { return });
 
                     await base.set(this.options.muteConfig.tableName, [Mute]);
 
@@ -112,7 +105,7 @@ class MuteManager extends Emitter {
                 if(searchMute) return reject(new ModeratorError(ModeratorErrors.muteManager.add.userAlreadyMuted.replace('{ID}', member.id)));
 
                 try {
-                    await member.roles.add(muteRoleID);
+                    await member.roles.add(muteRoleID).catch(err => { return });
 
                     await base.push(this.options.muteConfig.tableName, Mute);
 
@@ -132,7 +125,7 @@ class MuteManager extends Emitter {
      * @param {String} muteRoleID Mute Role ID
      * @param {String} muteTime Muting Time
      * @param {String} muteReason Muting Reason
-     * @returns {Promise<{ status: Boolean, data: Object }>} Returns the status of issuing a temporary mute and information about it
+     * @returns {Promise<{ status: Boolean, data: MuteData }>} Returns the status of issuing a temporary mute and information about it
     */
     temp(member, channel, muteRoleID, muteTime, muteReason) {
         return new Promise(async (resolve, reject) => {
@@ -159,11 +152,11 @@ class MuteManager extends Emitter {
             const muteRolePosition = member.guild.roles.cache.get(muteRoleID).position;
             const clientRolePosition = member.guild.members.cache.get(this.client.user.id).roles.highest.position;
 
-            if(muteRolePosition > clientRolePosition) return reject(new ModeratorError(ModeratorErrors.MissingAccess));
+            if(muteRolePosition >= clientRolePosition) return reject(new ModeratorError(ModeratorErrors.MissingAccess));
 
             if(!mutesData || mutesData == null) {
                 try {
-                    await member.roles.add(muteRoleID);
+                    await member.roles.add(muteRoleID).catch(err => { return });
 
                     await base.set(this.options.muteConfig.tableName, [Mute]);
 
@@ -177,7 +170,7 @@ class MuteManager extends Emitter {
                 if(searchMute) return reject(new ModeratorError(ModeratorErrors.mute.userAlreadyMuted.replace('{ID}', member.id)));
 
                 try {
-                    await member.roles.add(muteRoleID);
+                    await member.roles.add(muteRoleID).catch(err => { return });
 
                     await base.push(this.options.muteConfig.tableName, Mute);
 
@@ -193,7 +186,7 @@ class MuteManager extends Emitter {
     /**
      * Method for getting information about a user mute on the server
      * @param {GuildMember} member Guild Member
-     * @returns {Promise<{ status: Boolean, searchGuild: Boolean, searchUser: Boolean, data: Object }>} Returns search status and mute information
+     * @returns {Promise<{ status: Boolean, searchGuild: Boolean, searchUser: Boolean, data: MuteData }>} Returns search status and mute information
     */
     get(member) {
         return new Promise(async (resolve, reject) => {
@@ -217,7 +210,7 @@ class MuteManager extends Emitter {
     /**
      * Method for getting user mutes on all bot servers
      * @param {GuildMember} member Guild Member
-     * @returns {Promise<{ status: Boolean, searchUser: Boolean, data: Array<Object> }>} Returns the search status of the user and all his mutes on the bot servers
+     * @returns {Promise<{ status: Boolean, searchUser: Boolean, data: Array<MuteData> }>} Returns the search status of the user and all his mutes on the bot servers
     */
     getAll(member) {
         return new Promise(async (resolve, reject) => {
@@ -259,9 +252,9 @@ class MuteManager extends Emitter {
                 const muteRolePosition = member.guild.roles.cache.get(searchMute.muteRoleID).position;
                 const clientRolePosition = member.guild.members.cache.get(this.client.user.id).roles.highest.position;
 
-                if(muteRolePosition > clientRolePosition) return reject(new ModeratorError(ModeratorErrors.MissingAccess));
+                if(muteRolePosition >= clientRolePosition) return reject(new ModeratorError(ModeratorErrors.MissingAccess));
 
-                await member.roles.remove(searchMute.muteRoleID).catch(error => { return reject(error) });
+                await member.roles.remove(searchMute.muteRoleID).catch(err => { return });
 
                 const newBase = mutesData.filter(data => data.userID != member.id);
                 await base.set(this.options.muteConfig.tableName, newBase);
@@ -277,37 +270,74 @@ class MuteManager extends Emitter {
     /**
      * Method for removing mutes from a specific server
      * @param {Guild} guild Discord Guild
-     * @returns {Boolean} Removing Status
+     * @returns {Promise<Boolean>} Removing Status
     */
     clearGuild(guild) {
-        if(!this.options.muteManager) return new ModeratorError(ModeratorErrors.muteManagerDisabled);
+        return new Promise(async (resolve, reject) => {
+            if(!this.options.muteManager) return reject(new ModeratorError(ModeratorErrors.muteManagerDisabled));
 
-        const mutesData = base.fetch(this.options.muteConfig.tableName);
-        if(!mutesData || mutesData == null) return false;
+            const mutesData = base.fetch(this.options.muteConfig.tableName);
+            if(!mutesData || mutesData == null) return resolve(false);
 
-        const searchGuild = mutesData.filter(mute => mute.guildID === guild.id);
-        if(!searchGuild) return false;
+            const searchGuild = mutesData.filter(mute => mute.guildID === guild.id);
+            if(!searchGuild) return resolve(false);
 
-        const newData = mutesData.filter(mute => mute.guildID != guild.id);
-        base.set(this.options.muteConfig.tableName, newData);
+            const newData = mutesData.filter(mute => mute.guildID != guild.id);
+            base.set(this.options.muteConfig.tableName, newData);
 
-        return true;
+            return resolve(true);
+        })
     }
 
     /**
      * Method for removing all mutes from the database
-     * @returns {Boolean} Removing Status
+     * @returns {Promise<Boolean>} Removing Status
     */
     clearAll() {
-        if(!this.options.muteManager) return new ModeratorError(ModeratorErrors.muteManagerDisabled);
+        return new Promise(async (resolve, reject) => {
+            if(!this.options.muteManager) return reject(new ModeratorError(ModeratorErrors.muteManagerDisabled));
 
-        const mutesData = base.fetch(this.options.muteConfig.tableName);
-        if(!mutesData || mutesData == null) return false;
+            const mutesData = base.fetch(this.options.muteConfig.tableName);
+            if(!mutesData || mutesData == null) return resolve(false);
 
-        base.delete(this.options.muteConfig.tableName);
+            base.delete(this.options.muteConfig.tableName);
 
-        return true;
+            return resolve(true);
+        })
     }
 }
+
+/**
+ * Moderator Options Object
+ * @typedef ModeratorOptions
+ * @property {Boolean} muteManager MuteManager Status
+ * @property {Boolean} warnManager WarnManager Status
+ * @property {Boolean} blacklistManager BlacklistManager Status
+ * @property {Object} muteConfig MuteManager Configuration
+ * @property {String} muteConfig.tableName Table Name For MuteManager
+ * @property {String} muteConfig.checkCountdown Mutes Check Interval
+ * @property {Object} warnConfig WarnManager Configuration
+ * @property {String} warnConfig.tableName Table Name For WarnManager
+ * @property {Number} warnConfig.maxWarns Maximum number of warns for punishment
+ * @property {String} warnConfig.punishment User punishment type
+ * @property {String} warnConfig.muteTime Mute time when reaching the warnings limit
+ * @property {Object} blacklistConfig BlacklistManager Status
+ * @property {String} blacklistConfig.tableName Table Name For BlacklistManager
+ * @property {String} blacklistConfig.punishment User punishment type
+ * @type {Object}
+*/
+
+/**
+ * Moderator Mute Data
+ * @typedef MuteData
+ * @property {String} guildID Discord Guild ID
+ * @property {String} userID Guild Member ID
+ * @property {String} channelID Guild Channel ID
+ * @property {String} muteRoleID Mute Role ID
+ * @property {Number | null} muteTime Mute time
+ * @property {Number} nowTime Current time
+ * @property {String} muteReason Mute Reason
+ * @type {Object}
+*/
 
 module.exports = MuteManager;
