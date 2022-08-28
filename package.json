@@ -1,0 +1,51 @@
+{
+  "name": "discord-moderator",
+  "version": "1.1.7",
+  "description": "A powerful moderation module for your Discord bot with many features",
+  "main": "index.js",
+  "homepage": "https://dm.js.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xyligan-gp/discord-moderator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/xyligan-gp/discord-moderator/issues"
+  },
+  "scripts": {
+    "build": "rimraf build && tsc -p tsconfig.json",
+    "build:docs": "docgen -s src/*.ts src/**/*.ts -o docs/index.json -c docs/index.yml -g -S 1 -j .jsconfig.json",
+    "publish": "npm publish",
+    "publish:dev": "npm publish --tag dev"
+  },
+  "keywords": [
+    "discord",
+    "discord-bot",
+    "discord-moderator",
+    "discord.js",
+    "xyligan"
+  ],
+  "author": "xyligan",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.9.0"
+  },
+  "peerDependencies": {
+    "discord.js": "14"
+  },
+  "types": "./types/Moderator.d.ts",
+  "devDependencies": {
+    "@babel/core": "^7.18.13",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-proposal-object-rest-spread": "^7.18.9",
+    "@babel/preset-env": "^7.18.10",
+    "@babel/preset-typescript": "^7.18.6",
+    "@distube/docgen": "github:distubejs/docgen",
+    "jsdoc-babel": "^0.5.0",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "discord.js": "^14.3.0",
+    "enmap": "^5.9.0"
+  }
+}
